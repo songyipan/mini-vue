@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <script type="module">
+        import { effect, ref } from '../dist/reactivity.esm.js'
+
+        const count = ref(1)
+
+        const runner = effect(
+            () => {
+                console.log(count.value, 'effect')
+                return 1
+            }, {
+            scheduler() {
+                const val = runner()
+                console.log('scheduler', val)
+            }
+        })
+        setTimeout(() => {
+            count.value++
+        }, 1000)
+
+    </script>
+</body>
+
+</html>
