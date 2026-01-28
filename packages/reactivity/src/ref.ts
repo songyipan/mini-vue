@@ -7,8 +7,10 @@ enum RefImplType {
 
 export interface Link {
   sub: ReactiveEffect;
-  next: Link | undefined;
-  prev: Link | undefined;
+  // 下一个订阅者节点
+  nextSub: Link | undefined;
+  // 上一个订阅者节点
+  prevSub: Link | undefined;
   dep: RefImp;
   nextDep: RefImp;
 }

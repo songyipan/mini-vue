@@ -4,8 +4,8 @@ import { Link } from "./ref";
 export function link(dep, sub) {
   const newLink: Link = {
     sub: sub,
-    next: undefined,
-    prev: undefined,
+    nextSub: undefined,
+    prevSub: undefined,
     dep: dep,
     nextDep: undefined,
   };
@@ -14,8 +14,6 @@ export function link(dep, sub) {
 
   const currentDep = sub.depsTail;
 
-  console.log("-------", sub.deps, sub.depsTail);
-
   /**
    * 复用节点的两种情况
    * 1. sub中的depsTail为undefined，并且sub的deps有，表示复用头结点
@@ -23,6 +21,13 @@ export function link(dep, sub) {
 
   if (currentDep === undefined && sub.deps) {
     if (sub.deps.dep === dep) {
+      sub.depsTail = sub.deps;
+      return;
+    }
+  } else if (currentDep) {
+    if (currentDep.nextDep?.dep === dep) {
+      sub.depsTail = currentDep.nextDep;
+      // 如果尾节点有并且尾结点还有nextDep就尝试复用尾结点的nextDep
       return;
     }
   }
@@ -31,10 +36,11 @@ export function link(dep, sub) {
    * 链表和dep关联链表
    */
   if (dep.subsTail) {
-    dep.subsTail.next = newLink;
-    newLink.prev = dep.subsTail;
+    dep.subsTail.nextSub = newLink;
+    newLink.prevSub = dep.subsTail;
     dep.subsTail = newLink;
   } else {
+    // console.log("链表和dep关联链表", dep);
     dep.subs = newLink;
     dep.subsTail = newLink;
   }
@@ -43,10 +49,10 @@ export function link(dep, sub) {
    * 将链表和sub建立关系
    */
   if (sub.depsTail) {
-    sub.depsTail.next = newLink;
+    console.log("将链表和sub建立关系", sub);
+    sub.depsTail.nextDep = newLink;
     sub.depsTail = newLink;
   } else {
-    console.log("sub.depsTail");
     sub.deps = newLink;
     sub.depsTail = newLink;
   }
