@@ -8,24 +8,22 @@
 </head>
 
 <body>
+    <button id="btn">点击</button>
     <script type="module">
         import { effect, ref } from '../dist/reactivity.esm.js'
 
-        const count = ref(1)
-
-        const runner = effect(
-            () => {
-                console.log(count.value, 'effect')
-                return 1
-            }, {
-            scheduler() {
-                const val = runner()
-                console.log('scheduler', val)
-            }
+        const flag = ref(true)
+        const e = effect(() => {
+            flag.value
+            console.log('effect')
         })
-        setTimeout(() => {
-            count.value++
-        }, 1000)
+
+        console.dir(e)
+
+        document.getElementById('btn').onclick = () => {
+            flag.value = !flag.value
+            console.dir(e)
+        }
 
     </script>
 </body>

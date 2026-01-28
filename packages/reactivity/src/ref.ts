@@ -9,6 +9,8 @@ export interface Link {
   sub: ReactiveEffect;
   next: Link | undefined;
   prev: Link | undefined;
+  dep: RefImp;
+  nextDep: RefImp;
 }
 
 class RefImp {
