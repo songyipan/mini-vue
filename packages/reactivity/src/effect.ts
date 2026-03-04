@@ -1,3 +1,4 @@
+import { endTrack } from "./linkSys";
 import { Link } from "./ref";
 
 export let activeSub;
@@ -22,6 +23,8 @@ export class ReactiveEffect {
     try {
       return this.fn();
     } finally {
+      console.log("应该清理掉的", this.depsTail.nextDep);
+      endTrack(this);
       //   恢复
       activeSub = prevSub;
     }

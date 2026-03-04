@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <div id="app"></div>
+    <button id="nameBtn">name</button>
+    <button id="ageBtn">age</button>
+
+    <button id="flagBtn">flag</button>
+
+    <script type="module">
+        import { effect, ref } from '../dist/reactivity.esm.js'
+
+        const flag = ref(true)
+        const name = ref('张三')
+        const age = ref(18)
+
+
+        const e = effect(() => {
+
+            if (flag.value) {
+                document.getElementById('app').innerHTML = `
+                <div>
+                    <p>name: ${name.value}</p>
+                
+                </div>
+                `
+            } else {
+                document.getElementById('app').innerHTML = `
+                <div> 
+                    <p>age: ${age.value}</p>
+                </div>
+                `
+            }
+        })
+
+        flagBtn.onclick = () => {
+            flag.value = !flag.value
+        }
+
+        nameBtn.onclick = () => {
+            name.value = '张三' + Math.random()
+        }
+
+        ageBtn.onclick = () => {
+            age.value = age.value + 1
+        }
+
+    </script>
+</body>
+
+</html>
