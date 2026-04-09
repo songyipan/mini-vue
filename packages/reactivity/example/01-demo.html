@@ -8,28 +8,28 @@
 </head>
 
 <body>
-    <button id="btn">点击</button>
-    <script type="module">
-        import { effect, ref } from '../dist/reactivity.esm.js'
 
-        const flag = ref(true)
+    <script type="module">
+        import { ref, effect } from '../dist/reactivity.esm.js'
+
         const count = ref(0)
 
-        const e = effect(() => {
-            flag.value
-            count.value
-            console.log('effect')
+        effect(() => {
+            effect(() => {
+                console.log(count.value, "effect2")
+            })
+            console.log(count.value, "effect1")
         })
 
-        console.dir(e)
-
-        document.getElementById('btn').onclick = () => {
-            count.value++
-        }
 
 
+
+        setTimeout(() => {
+            count.value = 1
+        }, 1000)
 
     </script>
+
 </body>
 
 </html>

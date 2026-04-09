@@ -1,53 +1,20 @@
-import { endTrack } from "./linkSys";
-import { Link } from "./ref";
-
 export let activeSub;
 
 export class ReactiveEffect {
-  constructor(public fn) {}
-
-  // 依赖项链表的头
-  deps: Link | undefined;
-
-  // 链表的尾
-  depsTail: Link | undefined;
+  constructor(public fn: Function) {}
 
   run() {
-    // 先缓存
-    const prevSub = activeSub;
-
+    let prevActiveSub = activeSub;
     activeSub = this;
-
-    // 标记 undefined表 表示被dep触发了重复执行，尝试复用link节点
-    this.depsTail = undefined;
     try {
       return this.fn();
     } finally {
-      console.log("应该清理掉的", this.depsTail.nextDep);
-      endTrack(this);
-      //   恢复
-      activeSub = prevSub;
+      activeSub = prevActiveSub;
     }
-  }
-
-  notify() {
-    this.scheduler();
-  }
-
-  // 调度器
-  scheduler() {
-    this.run();
   }
 }
 
-export function effect(fn: Function, options) {
+export function effect(fn: () => void) {
   const e = new ReactiveEffect(fn);
-  Object.assign(e, options);
-
   e.run();
-  const runner = () => e.run();
-
-  runner.effect = e;
-
-  return runner;
 }
