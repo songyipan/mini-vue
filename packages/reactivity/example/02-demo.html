@@ -9,25 +9,23 @@
 
 <body>
 
+    <div>
+        <button id="btn">
+            按钮
+        </button>
+    </div>
+
     <script type="module">
         import { ref, effect } from '../dist/reactivity.esm.js'
 
-        const count = ref(0)
+        const flag = ref(true)
 
-        const runner = effect(() => {
-
-            return count.value;
-        },
-            {
-                scheduler: () => {
-                    const res = runner();
-                    console.log("scheduler", res)
-                }
-            })
-
+        effect(() => {
+            flag.value
+        })
         setTimeout(() => {
-            count.value = 1
-        }, 1000)
+            flag.value = !flag.value;
+        }, 1000);
 
     </script>
 

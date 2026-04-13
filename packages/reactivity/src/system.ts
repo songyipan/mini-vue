@@ -39,6 +39,6 @@ function propagate(sub: Link) {
     subs = subs.nextSub;
   }
   queueEffects.forEach((item) => {
-    item.sub.run();
+    item.sub.notify();
   });
 }
