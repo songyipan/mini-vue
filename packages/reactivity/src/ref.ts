@@ -1,14 +1,8 @@
-import { activeSub, ReactiveEffect } from "./effect";
-import { trackRef, triggerRef } from "./system";
+import { activeSub } from "./effect";
+import { Link, trackRef, triggerRef } from "./system";
 
 enum ReactivityFlags {
   IS_REF = "__v_isRef",
-}
-
-export interface Link {
-  sub: ReactiveEffect;
-  nextSub: Link | undefined;
-  prevSub: Link | undefined;
 }
 
 export class RefImpl {

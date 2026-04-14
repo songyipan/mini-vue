@@ -1,12 +1,18 @@
+import { Link } from "./system";
+
 export let activeSub;
 
 export class ReactiveEffect {
   constructor(public fn: Function) {}
 
+  deps: Link | undefined;
+
+  depsTail: Link | undefined;
+
   run() {
     let prevActiveSub = activeSub;
     activeSub = this;
-
+    this.depsTail = undefined;
     try {
       return this.fn();
     } finally {

@@ -8,18 +8,31 @@
 </head>
 
 <body>
+
+
+    <button id="btn">
+        按钮
+    </button>
+
+
     <!-- 使用链表将dep和sub建立关联关系，并实现了 scheduler -->
     <script type="module">
         import { ref, effect } from '../dist/reactivity.esm.js'
 
         const flag = ref(true)
+        const count = ref(0)
 
         effect(() => {
+
+            console.log(flag.value)
             flag.value
+            count.value
         })
-        setTimeout(() => {
+
+
+        btn.onclick = () => {
             flag.value = !flag.value;
-        }, 1000);
+        }
 
     </script>
 
