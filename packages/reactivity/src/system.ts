@@ -30,6 +30,8 @@ export function triggerRef(dep: RefImpl) {
   }
 }
 
+let linkPool: Link;
+
 // 建立依赖和副作用函数的关联
 export function link(dep: RefImpl, sub: ReactiveEffect) {
   const currentDep = sub.depsTail;
@@ -40,13 +42,23 @@ export function link(dep: RefImpl, sub: ReactiveEffect) {
     return;
   }
 
-  const newLink: Link = {
-    sub,
-    dep,
-    prevSub: undefined,
-    nextSub: undefined,
-    nextDep,
-  };
+  let newLink: Link;
+
+  if (linkPool) {
+    newLink = linkPool;
+    linkPool = newLink.nextDep;
+    newLink.nextDep = nextDep;
+    newLink.dep = dep;
+    newLink.sub = sub;
+  } else {
+    newLink = {
+      sub,
+      dep,
+      prevSub: undefined,
+      nextSub: undefined,
+      nextDep,
+    };
+  }
 
   if (dep.subsTail) {
     dep.subsTail.nextSub = newLink;
@@ -121,6 +133,10 @@ function clearTracking(link: Link) {
     }
 
     link.dep = link.sub = undefined;
+
+    link.nextDep = linkPool;
+
+    linkPool = link;
 
     link = nextDep;
   }
