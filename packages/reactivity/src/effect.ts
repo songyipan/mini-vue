@@ -1,4 +1,5 @@
-import { Link } from "./system";
+import { endTrack, Link, startTrack } from "./system";
+import { RefImpl } from "./ref";
 
 export let activeSub;
 
@@ -12,10 +13,15 @@ export class ReactiveEffect {
   run() {
     let prevActiveSub = activeSub;
     activeSub = this;
-    this.depsTail = undefined;
+    // this.depsTail = undefined;
+    startTrack(this);
     try {
       return this.fn();
     } finally {
+      // if (this.depsTail.nextDep) {
+      //   console.log("清理掉他", this.depsTail.nextDep);
+      // }
+      endTrack(this);
       activeSub = prevActiveSub;
     }
   }
