@@ -10,17 +10,17 @@ export class ReactiveEffect {
 
   depsTail: Link | undefined;
 
+  tracking = false;
+
   run() {
     let prevActiveSub = activeSub;
     activeSub = this;
+
     // this.depsTail = undefined;
     startTrack(this);
     try {
       return this.fn();
     } finally {
-      // if (this.depsTail.nextDep) {
-      //   console.log("清理掉他", this.depsTail.nextDep);
-      // }
       endTrack(this);
       activeSub = prevActiveSub;
     }

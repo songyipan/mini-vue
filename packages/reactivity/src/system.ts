@@ -81,10 +81,14 @@ export function link(dep: RefImpl, sub: ReactiveEffect) {
 function propagate(sub: Link | undefined) {
   let queueEffects: Link[] = [];
 
-  let subs = sub;
-  while (subs) {
-    queueEffects.push(subs);
-    subs = subs.nextSub;
+  let link = sub;
+  while (link) {
+    const { sub } = link;
+
+    if (!sub.tracking) {
+      queueEffects.push(link);
+    }
+    link = link.nextDep;
   }
   queueEffects.forEach((item) => {
     item.sub.notify();
@@ -92,9 +96,11 @@ function propagate(sub: Link | undefined) {
 } // 依赖项// 开始追踪依赖，将depsTail设为undefined
 export function startTrack(sub: ReactiveEffect) {
   sub.depsTail = undefined;
+  sub.tracking = true;
 }
 // 结束追踪依赖，清理依赖链
 export function endTrack(sub: ReactiveEffect) {
+  sub.tracking = false;
   const depsTail = sub.depsTail;
 
   // depsTail有并且有nextDep，才清理掉nextDep
