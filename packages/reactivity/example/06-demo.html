@@ -11,17 +11,18 @@
     <script type="module">
         import { effect, reactive } from '../dist/reactivity.esm.js'
 
-        const obj = reactive({
-            count: 0,
-        })
+        const info = {
+            name: 'xiaosong',
+            age: 18,
+        }
+
+        const info1 = reactive(info)
+        const info2 = reactive(info1)
 
         effect(() => {
-            console.log(obj.count);
+            console.log(info1.name === info2.name, "info1.name === info2.name");
         })
 
-        setTimeout(() => {
-            obj.count = 2;
-        }, 1000);
 
     </script>
 </body>

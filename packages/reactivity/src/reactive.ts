@@ -1,14 +1,31 @@
-import { activeSub } from "./effect";
-import { Link, link, propagate } from "./system";
-import { RefImpl } from "./ref";
+import { mutableObj } from "./baseHandler";
 
 export function reactive<T>(target: T): T {
   return createReactiveObject(target);
 }
 
+// 保存target和响应式对象的映射关系
+const reactiveMap = new WeakMap();
+
+// 保存所有使用reactive创建出来的响应式对象
+const reactiveSet = new WeakSet();
+
 function createReactiveObject<T>(target: T): T {
   if (typeof target !== "object" || target === null) {
     return target;
+  }
+
+  // 看一下target在不在reactiveSet中，如果在，直接返回target
+  // 证明target本来就是响应式对象，不需要再创建响应式对象
+  if (reactiveSet.has(target)) {
+    return target;
+  }
+
+  // 如果target已经存在响应式对象，直接返回
+  const existingProxy = reactiveMap.get(target);
+  if (existingProxy) {
+    // 如果target已经存在响应式对象，直接返回
+    return existingProxy;
   }
 
   //   receiver是为了保证保证访问器中的this指向代理对象
@@ -16,23 +33,18 @@ function createReactiveObject<T>(target: T): T {
   //   这里get方法中的this指向代理对象，而不是obj
   //    否则会导致get方法中的this指向obj，而不是代理对象。这样就不会触发依赖
   //   其作用就是可以改变访问器中的this指向
-  const proxy = new Proxy(target, {
-    // 收集依赖，绑定对象中的某一个key和sub间的联系
-    get(target, key, receiver) {
-      track(target, key);
+  const proxy = new Proxy(target, mutableObj());
 
-      return Reflect.get(target, key, receiver);
-    },
+  // 保存所有使用reactive创建出来的响应式对象
+  reactiveSet.add(proxy);
 
-    // 触发依赖，通知订阅者更新
-    set(target, key, newValue, receiver) {
-      const result = Reflect.set(target, key, newValue, receiver);
-
-      //   先赋值在执行trigger
-      trigger(target, key);
-      return result;
-    },
-  });
+  // 保存target和响应式对象的映射关系
+  // 目的是防止重复创建响应式对象
+  // 比如说：{name: "xiaosong", age: 18}
+  // 如果我们调用了reactive(obj)两次，那么就会创建两次响应式对象
+  // 所以我们需要保存target和响应式对象的映射关系
+  // 这样我们就可以根据target来获取响应式对象
+  reactiveMap.set(target, proxy);
 
   return proxy;
 }
@@ -48,40 +60,10 @@ function createReactiveObject<T>(target: T): T {
  *   }:Map
  * }:WeakMap
  */
-const targetMap = new WeakMap();
+export const targetMap = new WeakMap();
 
-function track(target: object, key: string | symbol) {
-  if (!activeSub) return;
-
-  let depsMap = targetMap.get(target);
-  if (!depsMap) {
-    depsMap = new Map();
-    targetMap.set(target, depsMap);
-  }
-
-  let dep = depsMap.get(key);
-  if (!dep) {
-    dep = new Dep();
-    depsMap.set(key, dep);
-  }
-
-  link(dep, activeSub);
-  console.log("dep", dep);
-}
-
-function trigger(target: object, key: string | symbol) {
-  const depsMap = targetMap.get(target);
-  if (!depsMap) return;
-
-  const dep = depsMap.get(key);
-  if (!dep) return;
-
-  propagate(dep.subs);
-}
-
-class Dep {
-  subs: Link | undefined;
-  subsTail: Link | undefined;
-
-  constructor() {}
+// 判断val是否是响应式对象，
+// 只要在reactiveSet中，就是响应式对象
+export function isReactive(val: any): boolean {
+  return reactiveSet.has(val);
 }
