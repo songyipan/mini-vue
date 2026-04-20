@@ -1,7 +1,7 @@
 import { activeSub, ReactiveEffect } from "./effect";
 import { RefImpl } from "./ref";
 
-export interface Dep {
+export interface Dependency {
   subs: Link | undefined;
   subsTail: Link | undefined;
 }
@@ -14,7 +14,7 @@ export interface Dep {
 
 export interface Link {
   sub: ReactiveEffect;
-  dep: Dep;
+  dep: Dependency;
   nextSub: Link | undefined;
   prevSub: Link | undefined;
   nextDep: Link | undefined;
@@ -78,7 +78,7 @@ export function link(dep: RefImpl, sub: ReactiveEffect) {
     sub.depsTail = newLink;
   }
 }
-function propagate(sub: Link | undefined) {
+export function propagate(sub: Link | undefined) {
   let queueEffects: Link[] = [];
 
   let link = sub;
