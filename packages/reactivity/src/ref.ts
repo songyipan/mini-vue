@@ -2,7 +2,7 @@ import { activeSub } from "./effect";
 import { Link, trackRef, triggerRef } from "./system";
 import { reactive } from "./reactive";
 
-enum ReactivityFlags {
+export enum ReactivityFlags {
   IS_REF = "__v_isRef",
 }
 

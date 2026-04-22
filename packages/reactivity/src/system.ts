@@ -5,12 +5,14 @@ export interface Dependency {
   subs: Link | undefined;
   subsTail: Link | undefined;
 }
+
 // 订阅者
 
-// export interface Sub {
-//   deps: Link | undefined;
-//   depsTail: Link | undefined;
-// }
+export interface Sub {
+  deps: Link | undefined;
+  depsTail: Link | undefined;
+  tracking: boolean;
+}
 
 export interface Link {
   sub: ReactiveEffect;
@@ -78,6 +80,14 @@ export function link(dep: RefImpl, sub: ReactiveEffect) {
     sub.depsTail = newLink;
   }
 }
+
+function processComputedUpdate(sub) {
+  sub.update();
+
+  // 接着通知computed上的所有的sub执行
+  propagate(sub);
+}
+
 export function propagate(sub: Link | undefined) {
   let queueEffects: Link[] = [];
 
@@ -86,7 +96,11 @@ export function propagate(sub: Link | undefined) {
     const { sub } = link;
 
     if (!sub.tracking) {
-      queueEffects.push(link);
+      if ("update" in sub) {
+        // sub.update();
+      } else {
+        queueEffects.push(link);
+      }
     }
     link = link.nextDep;
   }

@@ -3,6 +3,10 @@ import { RefImpl } from "./ref";
 
 export let activeSub;
 
+export function setActiveSub(sub: ReactiveEffect | undefined) {
+  activeSub = sub;
+}
+
 export class ReactiveEffect {
   constructor(public fn: Function) {}
 
@@ -14,9 +18,9 @@ export class ReactiveEffect {
 
   run() {
     let prevActiveSub = activeSub;
-    activeSub = this;
 
-    // this.depsTail = undefined;
+    setActiveSub(this);
+
     startTrack(this);
     try {
       return this.fn();
