@@ -91,13 +91,16 @@ function processComputedUpdate(sub) {
 export function propagate(sub: Link | undefined) {
   let queueEffects: Link[] = [];
 
+  debugger;
+  console.log("sub", sub);
+
   let link = sub;
   while (link) {
     const { sub } = link;
 
     if (!sub.tracking) {
       if ("update" in sub) {
-        // sub.update();
+        processComputedUpdate(sub);
       } else {
         queueEffects.push(link);
       }
