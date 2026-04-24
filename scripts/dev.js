@@ -6,7 +6,7 @@ import esbuild from "esbuild";
 import { createRequire } from "node:module";
 
 const {
-  values: { format },
+  values: { format, watch },
   positionals,
 } = parseArgs({
   options: {
@@ -14,6 +14,11 @@ const {
       type: "string",
       short: "f",
       default: "esm",
+    },
+    watch: {
+      type: "boolean",
+      short: "w",
+      default: false,
     },
   },
   allowPositionals: true,
@@ -44,7 +49,13 @@ esbuild
       `../packages/${target}/dist/${target}.${format}.js`, // 打包输出文件
     ),
   })
-  .then((ctx) => ctx.rebuild())
-  .then(() => {
-    console.log(`build success`);
+  .then((ctx) => {
+    if (watch) {
+      ctx.watch();
+      console.log(`watching ${target}...`);
+    } else {
+      return ctx.rebuild().then(() => {
+        console.log(`build success`);
+      });
+    }
   });

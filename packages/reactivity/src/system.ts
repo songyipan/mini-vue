@@ -85,13 +85,13 @@ function processComputedUpdate(sub) {
   sub.update();
 
   // 接着通知computed上的所有的sub执行
-  propagate(sub);
+  propagate(sub.subs);
 }
 
 export function propagate(sub: Link | undefined) {
   let queueEffects: Link[] = [];
 
-  debugger;
+ 
   console.log("sub", sub);
 
   let link = sub;
@@ -100,6 +100,9 @@ export function propagate(sub: Link | undefined) {
 
     if (!sub.tracking) {
       if ("update" in sub) {
+
+        console.log("update", sub.update);
+
         processComputedUpdate(sub);
       } else {
         queueEffects.push(link);
