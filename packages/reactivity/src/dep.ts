@@ -18,7 +18,6 @@ export function track(target: object, key: string | symbol) {
   }
 
   link(dep, activeSub);
-  console.log("dep", dep);
 }
 export function trigger(target: object, key: string | symbol) {
   const depsMap = targetMap.get(target);

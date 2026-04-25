@@ -40,6 +40,8 @@ export function link(dep: RefImpl, sub: ReactiveEffect) {
   let link = sub.deps;
   while (link) {
     if (link.dep === dep) {
+      // 发现依赖已存在，更新depsTail，防止endTrack误删依赖
+      sub.depsTail = link;
       return;
     }
     link = link.nextDep;
@@ -129,7 +131,7 @@ export function propagate(sub) {
         queueEffects.push(link);
       }
     }
-    link = link.nextDep;
+    link = link.nextSub;
   }
   queueEffects.forEach((item) => {
     item.sub.notify();

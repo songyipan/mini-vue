@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <script type="module">
+        import { reactive, watch, effect } from '../dist/reactivity.esm.js'
+
+        // const num = ref(0)
+
+        const info = reactive({
+            a: {
+                b: 1,
+                c: {
+                    d: 1
+                }
+            }
+        })
+
+        watch(info, (newValue, oldValue) => {
+            console.log('打印:', newValue, oldValue)
+        }, {
+            // immediate: true,
+            // once: true
+            deep: 2
+        })
+
+
+
+        // setTimeout(() => {
+        //     num.value = 1
+
+        //     setTimeout(() => {
+        //         num.value = 2
+        //     }, 1000)
+        // }, 1000)
+
+        setTimeout(() => {
+            info.a.c.d = 100
+            // console.log(info.value)
+        }, 1000)
+
+
+    </script>
+
+</body>
+
+</html>

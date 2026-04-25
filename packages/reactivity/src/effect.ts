@@ -23,12 +23,20 @@ export class ReactiveEffect {
    */
   tracking = false;
 
+  active = true;
+
   run() {
     let prevActiveSub = activeSub;
 
     setActiveSub(this);
 
+    // 如果在未激活状态下还访问run函数了那就不收集依赖了直接当普通函数执行
+    if (!this.active) {
+      return this.fn();
+    }
+
     startTrack(this);
+
     try {
       return this.fn();
     } finally {
@@ -43,6 +51,15 @@ export class ReactiveEffect {
 
   scheduler() {
     this.run();
+  }
+
+  stop() {
+    if (this.active) {
+      // 先执行startTrack，再执行endTrack，这样做是为了触发清理所用的依赖的逻辑函数clearTracking(sub.deps);
+      startTrack(this);
+      endTrack(this);
+      this.active = false;
+    }
   }
 }
 
