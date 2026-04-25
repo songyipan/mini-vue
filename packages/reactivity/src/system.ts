@@ -36,6 +36,15 @@ let linkPool: Link;
 
 // 建立依赖和副作用函数的关联
 export function link(dep: RefImpl, sub: ReactiveEffect) {
+  // 遍历sub的deps，判断是否有重复sub的dep
+  let link = sub.deps;
+  while (link) {
+    if (link.dep === dep) {
+      return;
+    }
+    link = link.nextDep;
+  }
+
   const currentDep = sub.depsTail;
 
   // link复用的点

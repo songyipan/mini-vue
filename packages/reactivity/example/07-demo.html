@@ -11,15 +11,15 @@
     <script type="module">
         import { effect, ref, computed } from '../dist/reactivity.esm.js'
 
-        const count = ref(100)
+        const count = ref(0)
 
-        const doubleCount = computed(() => {
-            return count.value * 0
-        })
+        // const doubleCount = computed(() => {
+        //     return count.value * 0
+        // })
 
         effect(() => {
-            console.count("effect");
-            doubleCount.value
+            console.log(count.value, "2")
+            console.log(count.value, "1")
         })
 
         // setTimeout(() => {
