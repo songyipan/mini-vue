@@ -44,7 +44,17 @@ export class ComputedRef implements Dependency, Sub {
   //   尾结点
   depsTail: Link | undefined;
 
+  // 这个是防止循环依赖导致的死循环，是作为subs使用时
+  /**
+   * 例如
+   * const num = ref(0)
+   * effect(() => num.value + 1)
+   * 以上代码会导致死循环
+   */
   tracking = false;
+
+  // 标记脏不脏的标志位，用来做缓存
+  dirty = true;
 
   constructor(
     public fn: Function, // getter
@@ -62,7 +72,15 @@ export class ComputedRef implements Dependency, Sub {
     // this.depsTail = undefined;
     startTrack(this as any);
     try {
+      const oldValue = this._value;
+
       this._value = this.fn();
+
+      // 标记为脏
+      this.dirty = false;
+
+      // 如果新旧值不同，说明有变化，需要通知依赖的sub执行更新
+      return this._value !== oldValue;
     } finally {
       endTrack(this as any);
 
@@ -71,7 +89,10 @@ export class ComputedRef implements Dependency, Sub {
   }
 
   get value() {
-    this.update();
+    // 如果是脏的，就执行update方法
+    if (this.dirty) {
+      this.update();
+    }
 
     if (activeSub) {
       link(this, activeSub);

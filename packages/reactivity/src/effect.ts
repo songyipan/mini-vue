@@ -14,6 +14,13 @@ export class ReactiveEffect {
 
   depsTail: Link | undefined;
 
+  // 这个是防止循环依赖导致的死循环
+  /**
+   * 例如
+   * const num = ref(0)
+   * effect(() => num.value + 1)
+   * 以上代码会导致死循环
+   */
   tracking = false;
 
   run() {

@@ -38,6 +38,7 @@ let linkPool: Link;
 export function link(dep: RefImpl, sub: ReactiveEffect) {
   const currentDep = sub.depsTail;
 
+  // link复用的点
   const nextDep = currentDep === undefined ? sub.deps : currentDep.nextDep;
   if (nextDep && nextDep.dep === dep) {
     sub.depsTail = nextDep;
@@ -82,17 +83,26 @@ export function link(dep: RefImpl, sub: ReactiveEffect) {
 }
 
 function processComputedUpdate(sub) {
-  sub.update();
-
-  // 接着通知computed上的所有的sub执行
-  propagate(sub.subs);
+  if (sub.subs && sub.update()) {
+    // 这个if的目的是只有computed被effect收集了，才会执行update方法
+    /**
+     * 例如
+     * const num = ref(0)
+     * const doubleCount = computed(() => num.value * 2)
+     *
+     * setTimeout(() => {
+     *     num.value = 1000
+     * }, 1000)
+     *
+     * 以上代码中doubleCount没有在effect收集，所以没必要执行update方法
+     */
+    // 接着通知computed上的所有的sub执行
+    propagate(sub.subs);
+  }
 }
 
-export function propagate(sub: Link | undefined) {
+export function propagate(sub) {
   let queueEffects: Link[] = [];
-
- 
-  console.log("sub", sub);
 
   let link = sub;
   while (link) {
@@ -100,10 +110,12 @@ export function propagate(sub: Link | undefined) {
 
     if (!sub.tracking) {
       if ("update" in sub) {
-
-        console.log("update", sub.update);
-
         processComputedUpdate(sub);
+
+        // 当执行完computed的依赖后，标记为脏的
+        // 因为computed的依赖是变化的，所以要标记为脏的
+        // 这样下次访问时，就会执行update方法，更新值
+        sub.dirty = true;
       } else {
         queueEffects.push(link);
       }
@@ -119,6 +131,7 @@ export function startTrack(sub: ReactiveEffect) {
   sub.tracking = true;
 }
 // 结束追踪依赖，清理依赖链
+// 分支切换和清理的点
 export function endTrack(sub: ReactiveEffect) {
   sub.tracking = false;
   const depsTail = sub.depsTail;
