@@ -7,6 +7,8 @@ export function watch(source, cb, options) {
   let getter;
   let oldValue;
 
+  let cleanUp = null;
+
   if (isRef(source)) {
     getter = () => source.value;
   } else if (isReactive(source)) {
@@ -40,12 +42,21 @@ export function watch(source, cb, options) {
     getter = () => traverse(baseGetter(), depth);
   }
 
+  function onCleanup(cbs) {
+    cleanUp = cbs;
+  }
+
   // 这是scheduler
   const job = () => {
+    if (cleanUp) {
+      cleanUp();
+      cleanUp = null;
+    }
+
     // 拿到最新的值，其实就是getter的返回值
     // 为什么不直接执行getter呢，因为要重新执行依赖收集
     const newValue = e.run();
-    cb(newValue, oldValue);
+    cb(newValue, oldValue, onCleanup);
 
     oldValue = newValue;
   };

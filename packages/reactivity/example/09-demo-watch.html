@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+
+    <div id="app" style="width: 100px; height: 100px; background: red;">
+
+    </div>
+    <div id="div" style="width: 100px; height: 100px; background:blue;">
+
+    </div>
+
+    <button id="btn">点击</button>
+
+    <script type="module">
+        import { watch, ref } from '../dist/reactivity.esm.js'
+
+        const flag = ref(false)
+
+        watch(flag, (newValue, oldValue, onCleanup) => {
+            const dom = newValue ? app : div
+
+            function handler() {
+                console.log(newValue ? 'app' : 'div')
+            }
+
+            dom.addEventListener('click', handler)
+            onCleanup(() => {
+                dom.removeEventListener('click', handler)
+            })
+            // console.log(onCleanup)
+        }, {
+            immediate: true
+        })
+
+
+        btn.addEventListener('click', () => {
+
+            flag.value = !flag.value
+        })
+    </script>
+
+</body>
+
+</html>
