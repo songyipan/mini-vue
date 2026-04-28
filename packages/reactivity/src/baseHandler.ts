@@ -34,7 +34,15 @@ export function mutableObj() {
     set(target, key, newValue, receiver) {
       const oldValue = target[key];
 
+      const isArray = Array.isArray(target);
+
+      // 为了处理隐式的数组长度变化例如：arr.push(5)
+      const oldLength = isArray ? target.length : 0;
+
       const result = Reflect.set(target, key, newValue, receiver);
+
+      // 同样的为了处理隐式的数组长度变化例如：arr.push(5)
+      const newLength = isArray ? newValue.length : 0;
 
       /**
        *如果值是一个ref，并且新的值不是ref，那么就会修改ref的value
@@ -52,12 +60,17 @@ export function mutableObj() {
       }
 
       // 如果新值和旧值相同，直接返回
-      if (newValue !== oldValue) {
-        //   先赋值在执行trigger
-        trigger(target, key);
+      if (newValue === oldValue) {
+        return result;
       }
 
-      return result;
+      // 同样的为了处理隐式的数组长度变化例如：arr.push(5)
+      if (isArray && oldLength !== newLength && key !== "length") {
+        // 通知访问了length属性的effect更新
+        trigger(target, "length");
+      }
+
+      trigger(target, key);
     },
   };
 }

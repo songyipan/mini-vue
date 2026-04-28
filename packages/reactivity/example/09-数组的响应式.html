@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <script type="module">
+        import { effect, reactive, computed } from '../dist/reactivity.esm.js'
+
+        const arr = reactive([1, 2, 3, 4])
+
+        effect(() => {
+            console.log(arr.length)
+        })
+
+        setTimeout(() => {
+            arr.push(5)
+        }, 1000)
+
+    </script>
+</body>
+
+</html>
